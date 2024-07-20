@@ -5,23 +5,15 @@ A discord bot for classic mcsr
 
 **All commands of this bot will have a prefix of '!!' which can be changed in the bot.py file**
 
-**!!addprofile name:**
+# !!profile
 
-Adds a new profile to classicMan
+Usage: !!profile <action> profileName
 
-Adding a new profile will set profileName and ign to the name set
+actions:
 
-**!!removeprofile profileName:**
-
-Removes the profile with profileName
-
-**!!stats profileName**
-
-returns the stats of the profile with profileName in an embed
-
-# How to use the bot
-
-Create a .env in the root directory of the bot and paste the following in:
+add: adds a new runner to classicMan
+remove: removes a runner from classicMan
+stats: sends stats of a runner in classicMan
 
 DISCORD_TOKEN=token
 DISCORD_CHANNEL_ID=channel_id
