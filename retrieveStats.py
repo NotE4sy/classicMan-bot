@@ -17,7 +17,7 @@ def msConvert(millis):
 url = 'https://paceman.gg/stats/api/getRecentRuns/'
 
 #open classicman profiles
-with open('profiles.json', 'r') as file:
+with open('res/profiles.json', 'r') as file:
     profiles = json.load(file)
 
 #main function to retrieve paceman pace
@@ -38,6 +38,9 @@ async def retrievePace(client: discord.Client):
                             profile['previousID'] = run['id']
                             enter_time = msConvert(run['nether'])
                             message = f"{profile['profileName']} ({profile['ign']}) has entered the Nether at {enter_time}!"
+
+                            with open('res/profiles.json', 'w') as file:
+                                json.dump(profiles, file, indent=4)
 
                             if channel:
                                 await channel.send(message)

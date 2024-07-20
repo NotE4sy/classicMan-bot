@@ -5,6 +5,7 @@ import asyncio
 import retrieveStats
 import json
 import math
+import profileHandler
 
 from discord import Intents, Client, Message
 from dotenv import load_dotenv
@@ -22,7 +23,7 @@ command_prefix = '!!'
 client = discord.Client(intents=intents)
 
 #open classicman profiles
-with open('profiles.json', 'r') as file:
+with open('res/profiles.json', 'r') as file:
     profiles = json.load(file)
 
 #main code
@@ -52,7 +53,8 @@ async def on_message(message: Message) -> None:
                 "ign": user_message[11:],
                 "previousID": 0,
                 "completions": 0,
-                "pb": 0
+                "pb": 0,
+                "classic pb": 0
             }
             
             for runner in profiles:
@@ -65,7 +67,7 @@ async def on_message(message: Message) -> None:
             else:
                 await message.channel.send(f"{newUser['profileName']} is already in classicman!")
 
-            with open('profiles.json', 'w') as file:
+            with open('res/profiles.json', 'w') as file:
                 json.dump(profiles, file, indent=4)
 
         #Removing profiles from classicman
@@ -75,15 +77,16 @@ async def on_message(message: Message) -> None:
                 "ign": user_message[14:],
                 "previousID": 0,
                 "completions": 0,
-                "pb": 0
+                "pb": 0,
+                "classic pb": 0
             }
 
-            for runner in profiles:
-                if runner["ign"] == toBeRemoved['ign']:
+            for profile in profiles:
+                if profile["ign"] == toBeRemoved['ign']:
                     inJson = True
-                    toBeRemoved['previousID'] = runner['previousID']
-                    toBeRemoved['completions'] = runner['completions']
-                    toBeRemoved['pb'] = runner['pb']
+                    toBeRemoved['previousID'] = profile['previousID']
+                    toBeRemoved['completions'] = profile['completions']
+                    toBeRemoved['pb'] = profile['pb']
 
             if inJson:
                 profiles.remove(toBeRemoved)
@@ -91,7 +94,7 @@ async def on_message(message: Message) -> None:
             else:
                 await message.channel.send(f"{toBeRemoved['profileName']} is not in classicman!")
 
-            with open('profiles.json', 'w') as file:
+            with open('res/profiles.json', 'w') as file:
                 json.dump(profiles, file, indent=4)
 
         #View profile stats
@@ -101,22 +104,13 @@ async def on_message(message: Message) -> None:
 
             for profile in profiles:
                 if profile['profileName'] == profileName:
-                    #Create an embed for stats
-                    statsEmbed = discord.Embed(
-                        title=f"{profileName}'s stats:",
-                        color=discord.Color.blurple()
-                    )
+                    #Get profile stats and convert to embed
+                    statsEmbed = profileHandler.getProfileEmbed(profile=profile)
 
-                    #Adding necessary information to the embed
-                    statsEmbed.add_field(name="Minecraft ign", value=profile['ign'], inline=False)
-                    statsEmbed.add_field(name="Bastion pb: ", value=retrieveStats.msConvert(profile['pb']), inline=False)
-                    statsEmbed.add_field(name="Classic pb: ", value=retrieveStats.msConvert(profile['classic pb']), inline=False)
-                    statsEmbed.add_field(name="No. Completions: ", value=profile['completions'], inline=False)
-
-                    #Sending it to the channel
+                    #Send to channel
                     await message.channel.send(embed=statsEmbed)
 
-                    #Breaking the for loop (For better efficiency)
+                    #Break for efficiency
                     break
 
 #Start bot
