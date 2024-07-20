@@ -15,7 +15,8 @@ add: adds a new runner to classicMan
 remove: removes a runner from classicMan
 stats: sends stats of a runner in classicMan
 
-DISCORD_TOKEN=token
-DISCORD_CHANNEL_ID=channel_id
+# How to use bot
+
+In the .env put your bot token as discord token and your channel id as channel id
 
 fill in the tokens and channel id from your discord bot and channel respectively
