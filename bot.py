@@ -44,74 +44,75 @@ async def on_message(message: Message) -> None:
     if user_message.startswith(command_prefix):
         inJson = False
         user_message = user_message[len(command_prefix):]
+
+        user_message = user_message.split()
+
         print(user_message)
 
-        #Adding profiles to classicman
-        if user_message[:11].lower() == "addprofile ":
-            newUser = {
-                "profileName": user_message[11:],
-                "ign": user_message[11:],
-                "previousID": 0,
-                "completions": 0,
-                "pb": 0,
-                "classic pb": 0
-            }
+        if user_message[0].lower() == "profile":
+            print("Yes 1")
+            match user_message[1]:
+                case 'add':
+                    newUser = {
+                        "profileName": user_message[2],
+                        "ign": user_message[2],
+                        "previousID": 0,
+                        "completions": 0,
+                        "pb": 0,
+                        "classic pb": 0
+                    }
             
-            for runner in profiles:
-                if runner == newUser:
-                    inJson = True
+                    for runner in profiles:
+                        if runner == newUser:
+                            inJson = True
 
-            if not inJson:
-                profiles.append(newUser)
-                await message.channel.send(f"Successfully added {newUser['profileName']} to classicman!")
-            else:
-                await message.channel.send(f"{newUser['profileName']} is already in classicman!")
+                    if not inJson:
+                        profiles.append(newUser)
+                        await message.channel.send(f"Successfully added {newUser['profileName']} to classicman!")
+                    else:
+                        await message.channel.send(f"{newUser['profileName']} is already in classicman!")
 
-            with open('res/profiles.json', 'w') as file:
-                json.dump(profiles, file, indent=4)
+                    with open('res/profiles.json', 'w') as file:
+                        json.dump(profiles, file, indent=4)
+                case 'remove':
+                    toBeRemoved = {
+                        "profileName": user_message[2],
+                        "ign": user_message[2],
+                        "previousID": 0,
+                        "completions": 0,
+                        "pb": 0,
+                        "classic pb": 0
+                    }
 
-        #Removing profiles from classicman
-        elif user_message[:14].lower() == "removeprofile ":
-            toBeRemoved = {
-                "profileName": user_message[14:],
-                "ign": user_message[14:],
-                "previousID": 0,
-                "completions": 0,
-                "pb": 0,
-                "classic pb": 0
-            }
+                    for profile in profiles:
+                        if profile["ign"] == toBeRemoved['ign']:
+                            inJson = True
+                            toBeRemoved['previousID'] = profile['previousID']
+                            toBeRemoved['completions'] = profile['completions']
+                            toBeRemoved['pb'] = profile['pb']
 
-            for profile in profiles:
-                if profile["ign"] == toBeRemoved['ign']:
-                    inJson = True
-                    toBeRemoved['previousID'] = profile['previousID']
-                    toBeRemoved['completions'] = profile['completions']
-                    toBeRemoved['pb'] = profile['pb']
+                    if inJson:
+                        profiles.remove(toBeRemoved)
+                        await message.channel.send(f"Successfully removed {toBeRemoved['profileName']} from classicman!")
+                    else:
+                        await message.channel.send(f"{toBeRemoved['profileName']} is not in classicman!")
 
-            if inJson:
-                profiles.remove(toBeRemoved)
-                await message.channel.send(f"Successfully removed {toBeRemoved['profileName']} from classicman!")
-            else:
-                await message.channel.send(f"{toBeRemoved['profileName']} is not in classicman!")
+                    with open('res/profiles.json', 'w') as file:
+                        json.dump(profiles, file, indent=4)
+                case 'stats':
+                    profileName = user_message[2]
+                    print(profileName)
 
-            with open('res/profiles.json', 'w') as file:
-                json.dump(profiles, file, indent=4)
+                    for profile in profiles:
+                        if profile['profileName'] == profileName:
+                            #Get profile stats and convert to embed
+                            statsEmbed = profileHandler.getProfileEmbed(profile=profile)
 
-        #View profile stats
-        elif user_message[:6].lower() == "stats ":
-            profileName = user_message[6:]
-            print(profileName)
+                            #Send to channel
+                            await message.channel.send(embed=statsEmbed)
 
-            for profile in profiles:
-                if profile['profileName'] == profileName:
-                    #Get profile stats and convert to embed
-                    statsEmbed = profileHandler.getProfileEmbed(profile=profile)
-
-                    #Send to channel
-                    await message.channel.send(embed=statsEmbed)
-
-                    #Break for efficiency
-                    break
+                            #Break for efficiency
+                            break
 
 #Start bot
 async def main():
