@@ -7,7 +7,7 @@ A discord bot for classic mcsr
 
 # !!profile
 
-Usage: !!profile <action> profileName
+Usage: !!profile action profileName
 
 actions:
 
