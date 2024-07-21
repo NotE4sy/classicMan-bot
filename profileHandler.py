@@ -2,9 +2,6 @@ import json
 import discord
 import retrieveStats
 
-with open('res/profiles.json', 'r') as file:
-    profiles = json.load(file)
-
 def getProfileEmbed(profile):
     url = f"https://minotar.net/helm/{profile['ign']}/{128}"
             
@@ -22,3 +19,19 @@ def getProfileEmbed(profile):
     statsEmbed.add_field(name="No. Completions: ", value=profile['completions'], inline=False)
 
     return statsEmbed
+
+async def editProfile(profileName, variable, newVal):
+    #open classicman profiles (read)
+    with open('res/profiles.json', 'r') as file:
+        profiles = json.load(file)
+
+    #find correct profile
+    for profile in profiles:
+        if profile['profileName'] == profileName:
+            #change value of variable to new value
+            profile[variable] = newVal
+
+            #open classicman profiles (write)
+            with open('res/profiles.json', 'w') as file:
+                json.dump(profiles, file, indent=4)
+            break

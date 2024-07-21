@@ -22,10 +22,6 @@ command_prefix = '!!'
 
 client = discord.Client(intents=intents)
 
-#open classicman profiles
-with open('res/profiles.json', 'r') as file:
-    profiles = json.load(file)
-
 #main code
 @client.event
 async def on_ready() -> None:
@@ -38,6 +34,10 @@ async def on_ready() -> None:
 async def on_message(message: Message) -> None:
     if message.author == client.user:
         return
+    
+    #open classicman profiles
+    with open('res/profiles.json', 'r') as file:
+        profiles = json.load(file)
 
     user_message = message.content
 
@@ -49,70 +49,109 @@ async def on_message(message: Message) -> None:
 
         print(user_message)
 
-        if user_message[0].lower() == "profile":
-            print("Yes 1")
-            match user_message[1]:
-                case 'add':
-                    newUser = {
-                        "profileName": user_message[2],
-                        "ign": user_message[2],
-                        "previousID": 0,
-                        "completions": 0,
-                        "pb": 0,
-                        "classic pb": 0
-                    }
+        match user_message[0].lower():
+            case "profile":
+                print("Yes 1")
+
+                if len(user_message) >= 3:
+                    match user_message[1]:
+                        case 'add':
+                            newUser = {
+                                "profileName": user_message[2],
+                                "ign": user_message[2],
+                                "previousID": 0,
+                                "completions": 0,
+                                "pb": 0,
+                                "classic pb": 0
+                            }
             
-                    for runner in profiles:
-                        if runner == newUser:
-                            inJson = True
+                            for runner in profiles:
+                                if runner == newUser:
+                                    inJson = True
 
-                    if not inJson:
-                        profiles.append(newUser)
-                        await message.channel.send(f"Successfully added {newUser['profileName']} to classicman!")
-                    else:
-                        await message.channel.send(f"{newUser['profileName']} is already in classicman!")
+                            if not inJson:
+                                profiles.append(newUser)
+                                await message.channel.send(f"Successfully added {newUser['profileName']} to classicman!")
+                            else:
+                                await message.channel.send(f"{newUser['profileName']} is already in classicman!")
 
-                    with open('res/profiles.json', 'w') as file:
-                        json.dump(profiles, file, indent=4)
-                case 'remove':
-                    toBeRemoved = {
-                        "profileName": user_message[2],
-                        "ign": user_message[2],
-                        "previousID": 0,
-                        "completions": 0,
-                        "pb": 0,
-                        "classic pb": 0
-                    }
+                            with open('res/profiles.json', 'w') as file:
+                                json.dump(profiles, file, indent=4)
+                        case 'remove':
+                            toBeRemoved = {
+                                "profileName": user_message[2],
+                                "ign": user_message[2],
+                                "previousID": 0,
+                                "completions": 0,
+                                "pb": 0,
+                                "classic pb": 0
+                            }
 
-                    for profile in profiles:
-                        if profile["ign"] == toBeRemoved['ign']:
-                            inJson = True
-                            toBeRemoved['previousID'] = profile['previousID']
-                            toBeRemoved['completions'] = profile['completions']
-                            toBeRemoved['pb'] = profile['pb']
+                            for profile in profiles:
+                                if profile["ign"] == toBeRemoved['ign']:
+                                    inJson = True
+                                    toBeRemoved['previousID'] = profile['previousID']
+                                    toBeRemoved['completions'] = profile['completions']
+                                    toBeRemoved['pb'] = profile['pb']
 
-                    if inJson:
-                        profiles.remove(toBeRemoved)
-                        await message.channel.send(f"Successfully removed {toBeRemoved['profileName']} from classicman!")
-                    else:
-                        await message.channel.send(f"{toBeRemoved['profileName']} is not in classicman!")
+                            if inJson:
+                                profiles.remove(toBeRemoved)
+                                await message.channel.send(f"Successfully removed {toBeRemoved['profileName']} from classicman!")
+                            else:
+                                await message.channel.send(f"{toBeRemoved['profileName']} is not in classicman!")
 
-                    with open('res/profiles.json', 'w') as file:
-                        json.dump(profiles, file, indent=4)
-                case 'stats':
-                    profileName = user_message[2]
-                    print(profileName)
+                            with open('res/profiles.json', 'w') as file:
+                                json.dump(profiles, file, indent=4)
+                        case 'stats':
+                            profileName = user_message[2]
+                            print(profileName)
 
-                    for profile in profiles:
-                        if profile['profileName'] == profileName:
-                            #Get profile stats and convert to embed
-                            statsEmbed = profileHandler.getProfileEmbed(profile=profile)
+                            for profile in profiles:
+                                if profile['profileName'] == profileName:
+                                    #Get profile stats and convert to embed
+                                    statsEmbed = profileHandler.getProfileEmbed(profile)
 
-                            #Send to channel
-                            await message.channel.send(embed=statsEmbed)
+                                    #Send to channel
+                                    await message.channel.send(embed=statsEmbed)
 
-                            #Break for efficiency
-                            break
+                                    #Break for efficiency
+                                    break
+                        case 'edit':
+                            if len(user_message) > 4:
+                                profileName = user_message[4]
+
+                                match user_message[2]:
+                                    case 'profileName':
+                                        await profileHandler.editProfile(profileName, 'profileName', user_message[3])
+                                        await message.channel.send(f"Successfully changed {profileName}'s profile name to {user_message[3]}")
+                                    case 'ign':
+                                        await profileHandler.editProfile(profileName, 'ign', user_message[3])
+                                        await message.channel.send(f"Successfully changed {profileName}'s minecraft ign to {user_message[3]}")
+                                    case 'bastionPB':
+                                        await profileHandler.editProfile(profileName, 'pb', user_message[3])
+                                        await message.channel.send(f"Successfully changed {profileName}'s bastion pb to {user_message[3]}")
+                                    case 'classicPB':
+                                        await profileHandler.editProfile(profileName, 'classic pb', user_message[3])
+                                        await message.channel.send(f"Successfully changed {profileName}'s classic pb to {user_message[3]}")
+                                    case 'completions':
+                                        await profileHandler.editProfile(profileName, 'completions', user_message[3])
+                                        await message.channel.send(f"Successfully changed {profileName}'s no. completions to {user_message[3]}")
+                                    case _:
+                                        await message.channel.send("Invalid command params")
+                            else:
+                                await message.channel.send("Invalid command params")
+                        case _:
+                            await message.channel.send("Invalid command params")
+
+                else:
+                    await message.channel.send("Invalid command params")
+            case _:
+                await message.channel.send("Invalid command params")
+            
+
+
+
+            
 
 #Start bot
 async def main():
