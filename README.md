@@ -21,7 +21,7 @@ actions:
 
   This command uses a different structure:
 
-  !!profle edit variable newValue profileName
+  !!profile edit variable newValue profileName
 
 # How to use bot
 
