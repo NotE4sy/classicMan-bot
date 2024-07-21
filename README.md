@@ -11,9 +11,17 @@ Usage: !!profile action profileName
 
 actions:
 
-add: adds a new runner to classicMan
-remove: removes a runner from classicMan
-stats: sends stats of a runner in classicMan
+**add: adds a new runner to classicMan**
+
+**remove: removes a runner from classicMan**
+
+**stats: sends stats of a runner in classicMan**
+
+**edit: edits a profile's variable to a new Value**
+
+  This command uses a different structure:
+
+  !!profle edit variable newValue profileName
 
 # How to use bot
 
