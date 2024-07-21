@@ -51,8 +51,6 @@ async def on_message(message: Message) -> None:
 
         match user_message[0].lower():
             case "profile":
-                print("Yes 1")
-
                 if len(user_message) >= 3:
                     match user_message[1]:
                         case 'add':
@@ -109,7 +107,7 @@ async def on_message(message: Message) -> None:
                             for profile in profiles:
                                 if profile['profileName'] == profileName:
                                     #Get profile stats and convert to embed
-                                    statsEmbed = profileHandler.getProfileEmbed(profile)
+                                    statsEmbed = await profileHandler.getProfileEmbed(profile)
 
                                     #Send to channel
                                     await message.channel.send(embed=statsEmbed)
@@ -145,6 +143,16 @@ async def on_message(message: Message) -> None:
 
                 else:
                     await message.channel.send("Invalid command params")
+            case 'commands':
+                await message.channel.send(
+                    "```"
+                    "!!profile add <profileName>\n"
+                    "!!profile remove <profileName>\n"
+                    "!!profile stats <profileName>\n"
+                    "!!profile edit variable newValue <profileName>\n"
+                    "!!commands"
+                    "```"
+                )
             case _:
                 await message.channel.send("Invalid command params")
             
