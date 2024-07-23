@@ -4,7 +4,6 @@ import discord
 import asyncio
 import retrieveStats
 import json
-import math
 import profileHandler
 
 from discord import Intents, Client, Message
@@ -155,11 +154,6 @@ async def on_message(message: Message) -> None:
                 )
             case _:
                 await message.channel.send("Invalid command params")
-            
-
-
-
-            
 
 #Start bot
 async def main():

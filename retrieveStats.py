@@ -5,6 +5,7 @@ import json
 import math
 import asyncio
 import discord
+import time
 
 #Convert milliseconds to minutes and seconds
 def msConvert(millis):
@@ -14,7 +15,11 @@ def msConvert(millis):
     return f"{math.floor(minutes)}:{math.floor(seconds):02}"
 
 #paceman api url
-url = 'https://paceman.gg/stats/api/getRecentRuns/'
+runsUrl = 'https://paceman.gg/stats/api/getRecentRuns/'
+worldUrl = 'https://paceman.gg/stats/api/getWorld/'
+
+ender_pearl_emote = "<:ender_pearl:1249639829252345916>"
+blaze_rod_emote = "<:blaze_rod:1249633180378464381>"
 
 #open classicman profiles
 with open('res/profiles.json', 'r') as file:
@@ -27,23 +32,37 @@ async def retrievePace(client: discord.Client):
     while True:
         for profile in profiles:
             #getting response from api endpoint
-            response = requests.get(url, params={'name': profile['ign'], 'hours': 1, 'limit': 1})
+            response = requests.get(runsUrl, params={'name': profile['ign'], 'hours': 1, 'limit': 1})
 
             if response.status_code == 200:
                 jsonResponse = response.json()
                 if isinstance(jsonResponse, list):
                     for run in jsonResponse:
                         #If player has entered nether (TODO: Will change to first portal after bot is done)
-                        if 'nether' in run and run['nether'] is not None and profile['previousID'] != run['id']:
+                        if 'nether' in run and run['nether'] is not None and profile['previousID'] != run['id'] and 'bastion' in run and run['bastion'] is None:
                             profile['previousID'] = run['id']
                             enter_time = msConvert(run['nether'])
-                            message = f"{profile['profileName']} ({profile['ign']}) has entered the Nether at {enter_time}!"
 
                             with open('res/profiles.json', 'w') as file:
                                 json.dump(profiles, file, indent=4)
 
                             if channel:
-                                await channel.send(message)
+                                getWorldResponse = requests.get(url=f"{worldUrl}?worldId={run['id']}")
+                                liveMsg = ""
+
+                                if getWorldResponse.status_code == 200:
+                                    worldData = getWorldResponse.json()
+                                    print(worldData)
+
+                                    if worldData['isLive'] is True and worldData['data']['vodId'] is not None:
+                                        liveMsg = f"[{profile['profileName']}](<http://twitch.tv/{worldData['data']['vodId']}>)"
+                                    else:
+                                        liveMsg = f"Offline - {profile['profileName']} (ign: {profile['ign']})"
+
+                                    await channel.send(
+                                        f"## {enter_time} - Nether Enter (Bastionless)\n\n"
+                                        f'{liveMsg} <t:{int(time.time())}:R>\n'
+                                    )
                             else:
                                 print("Channel not found.")
                         
