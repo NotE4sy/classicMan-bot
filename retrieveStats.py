@@ -17,6 +17,7 @@ def msConvert(millis):
 #paceman api url
 runsUrl = 'https://paceman.gg/stats/api/getRecentRuns/'
 worldUrl = 'https://paceman.gg/stats/api/getWorld/'
+liverunsUrl = "https://paceman.gg/api/ars/liveruns"
 
 ender_pearl_emote = "<:ender_pearl:1249639829252345916>"
 blaze_rod_emote = "<:blaze_rod:1249633180378464381>"
@@ -35,59 +36,69 @@ async def retrievePace(client: discord.Client):
             response = requests.get(runsUrl, params={'name': profile['ign'], 'hours': 1, 'limit': 1})
 
             if response.status_code == 200:
-                jsonResponse = response.json()
-                if isinstance(jsonResponse, list):
-                    for run in jsonResponse:
-                        #If player has entered nether (TODO: Will change to first portal after bot is done)
-                        if 'nether' in run and run['nether'] is not None and profile['previousID'] != run['id'] and 'bastion' in run and run['bastion'] is None:
-                            profile['previousID'] = run['id']
-                            enter_time = msConvert(run['nether'])
+                run = response.json()
+                if run:
+                    #If player has entered nether (TODO: Will change to first portal after bot is done)
+                    if 'first_portal' in run[0] and run[0]['first_portal'] is not None and profile['previousID'] != run[0]['id'] and 'bastion' in run[0] and run[0]['bastion'] is None:
+                        profile['previousID'] = run[0]['id']
+                        enter_time = msConvert(run[0]['first_portal'])
 
-                            with open('res/profiles.json', 'w') as file:
-                                json.dump(profiles, file, indent=4)
+                        with open('res/profiles.json', 'w') as file:
+                            json.dump(profiles, file, indent=4)
 
-                            if channel:
-                                getWorldResponse = requests.get(url=f"{worldUrl}?worldId={run['id']}")
-                                liveMsg = ""
+                        if channel:
+                            rodCount = 0
+                            pearlCount = 0
+                            getWorldResponse = requests.get(url=f"{worldUrl}?worldId={run[0]['id']}")
+                            getliverunsResponse = requests.get(url=liverunsUrl)
+                            liveMsg = ""
 
-                                if getWorldResponse.status_code == 200:
-                                    worldData = getWorldResponse.json()
-                                    print(worldData)
+                            if getWorldResponse.status_code == 200 and getliverunsResponse.status_code == 200:
+                                worldData = getWorldResponse.json()
+                                liverunsData = getliverunsResponse.json()
+                                print(worldData)
+                                print(liverunsData)
 
-                                    if worldData['isLive'] is True and worldData['data']['vodId'] is not None:
-                                        liveMsg = f"[{profile['profileName']}](<http://twitch.tv/{worldData['data']['vodId']}>)"
-                                    else:
-                                        liveMsg = f"Offline - {profile['profileName']} (ign: {profile['ign']})"
+                                for data in liverunsData:
+                                    if data['nickname'] == profile['ign']:
+                                        rodCount = data['itemData']['estimatedCounts']['minecraft:blaze_rod']
+                                        pearlCount = data['itemData']['estimatedCounts']['minecraft:ender_pearl']
+                                        break
 
-                                    await channel.send(
-                                        f"## {enter_time} - Nether Enter (Bastionless)\n\n"
-                                        f'{liveMsg} <t:{int(time.time())}:R>\n'
-                                    )
-                            else:
-                                print("Channel not found.")
+                                if worldData['isLive'] is True and worldData['data']['vodId'] is not None:
+                                    liveMsg = f"[{profile['profileName']}](<http://twitch.tv/{worldData['data']['vodId']}>)"
+                                else:
+                                    liveMsg = f"Offline - {profile['profileName']} (ign: {profile['ign']})"
+
+                                await channel.send(
+                                    f"## {enter_time} - First Portal (Bastionless)\n\n"
+                                    f'{liveMsg} <t:{int(time.time())}:R>\n'
+                                    f'{ender_pearl_emote}{pearlCount} {blaze_rod_emote}{rodCount}'
+                                )
+                        else:
+                            print("Channel not found.")
                         
                         #Handling completions
-                        if 'finish' in run and run['finish'] is not None:
+                        if 'finish' in run[0] and run[0]['finish'] is not None:
                             profile['completions'] += 1
 
                             #Handling pbs
-                            if 'bastion' in run and run['bastion'] is None:
+                            if 'bastion' in run[0] and run[0]['bastion'] is None:
                                 #Classic pbs
-                                if run['finish'] < profile['classic pb']:
-                                    profile['classic pb'] = run['finish']
+                                if run[0]['finish'] < profile['classic pb']:
+                                    profile['classic pb'] = run[0]['finish']
                                     message = f"{profile['profileName']} ({profile['ign']}) has just gotten a new classic pb of: {profile['classic pb']}!"
                             else:
                                 #Bastion pbs
-                                if run['finish'] < profile['pb']:
-                                    profile['pb'] = run['finish']
+                                if run[0]['finish'] < profile['pb']:
+                                    profile['pb'] = run[0]['finish']
                                     message = f"{profile['profileName']} ({profile['ign']}) has just gotten a new bastion pb of: {profile['pb']}!"          
 
-                                channel.send(message)
-                        
-                        #Preventing to much spam and function crashing
-                        await asyncio.sleep(25)
+                            channel.send(message)
+                    #Preventing to much spam and function crashing
+                    await asyncio.sleep(25)
                 else:
-                    print("Unexpected response format.")
+                    print("No recent runs")
             else:
                 print(f"Failed to fetch data: {response.status_code}")
             
