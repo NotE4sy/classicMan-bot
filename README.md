@@ -15,6 +15,8 @@ actions:
 
 **remove: removes a runner from classicMan**
 
+**list: lists all runners in classicMan with their classic pbs**
+
 **stats: sends stats of a runner in classicMan**
 
 **edit: edits a profile's variable to a new Value**
