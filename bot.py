@@ -50,7 +50,7 @@ async def on_message(message: Message) -> None:
 
         match user_message[0].lower():
             case "profile":
-                if len(user_message) >= 3:
+                if len(user_message) >= 2:
                     match user_message[1]:
                         case 'add':
                             newUser = {
@@ -58,8 +58,8 @@ async def on_message(message: Message) -> None:
                                 "ign": user_message[2],
                                 "previousID": 0,
                                 "completions": 0,
-                                "pb": 0,
-                                "classic pb": 0
+                                "pb": 8580000,
+                                "classic pb": 8580000
                             }
             
                             for runner in profiles:
@@ -80,8 +80,8 @@ async def on_message(message: Message) -> None:
                                 "ign": user_message[2],
                                 "previousID": 0,
                                 "completions": 0,
-                                "pb": 0,
-                                "classic pb": 0
+                                "pb": 8580000,
+                                "classic pb": 8580000
                             }
 
                             for profile in profiles:
@@ -137,6 +137,31 @@ async def on_message(message: Message) -> None:
                                         await message.channel.send("Invalid command params")
                             else:
                                 await message.channel.send("Invalid command params")
+                        case 'list':
+                            classicTime = 3600000
+
+                            if isinstance(profiles, list) and all(isinstance(profile, dict) for profile in profiles):
+                                profilesSorted = sorted(profiles, key=lambda x: x.get('classic pb', 0))
+
+                                print(profilesSorted)
+                            else:
+                                print("Profiles data is not in the expected format.")
+
+                            for profile in profilesSorted:
+                                if profile['classic pb'] < classicTime:
+                                    classicTime = retrieveStats.msConvert(profile['classic pb'])
+                                else:
+                                    classicTime = "None"
+
+                                await message.channel.send(
+                                    '```'
+                                    f'Profile name: {profile['profileName']}\n'
+                                    f'Minecraft ign: {profile['ign']}\n'
+                                    f'Classic pb: {classicTime}\n'
+                                    '```'
+                                )
+
+                                classicTime = 100000
                         case _:
                             await message.channel.send("Invalid command params")
 

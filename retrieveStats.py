@@ -19,8 +19,8 @@ runsUrl = 'https://paceman.gg/stats/api/getRecentRuns/'
 worldUrl = 'https://paceman.gg/stats/api/getWorld/'
 liverunsUrl = "https://paceman.gg/api/ars/liveruns"
 
-ender_pearl_emote = "<:ender_pearl:1249639829252345916>"
-blaze_rod_emote = "<:blaze_rod:1249633180378464381>"
+ender_pearl_emote = "<:pearl:1265508441632407605>"
+blaze_rod_emote = "<:rod:1265507954157949061>"
 
 #open classicman profiles
 with open('res/profiles.json', 'r') as file:
@@ -56,8 +56,6 @@ async def retrievePace(client: discord.Client):
                             if getWorldResponse.status_code == 200 and getliverunsResponse.status_code == 200:
                                 worldData = getWorldResponse.json()
                                 liverunsData = getliverunsResponse.json()
-                                print(worldData)
-                                print(liverunsData)
 
                                 for data in liverunsData:
                                     if data['nickname'] == profile['ign']:
@@ -73,7 +71,7 @@ async def retrievePace(client: discord.Client):
                                 await channel.send(
                                     f"## {enter_time} - First Portal (Bastionless)\n\n"
                                     f'{liveMsg} <t:{int(time.time())}:R>\n'
-                                    f'{ender_pearl_emote}{pearlCount} {blaze_rod_emote}{rodCount}'
+                                    f'{ender_pearl_emote} {pearlCount} {blaze_rod_emote} {rodCount}'
                                 )
                         else:
                             print("Channel not found.")
