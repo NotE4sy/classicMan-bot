@@ -2,24 +2,21 @@ import json
 import discord
 import retrieveStats
 
+
 async def getProfileEmbed(profile):
-    print("H")
     url = f"https://minotar.net/helm/{profile['ign']}/{128}"
-            
-    #Create an embed for stats
-    statsEmbed = discord.Embed(
-                title=f"{profile['profileName']}'s stats:",
-                color=discord.Color.blurple()
-            )
 
-    #Adding necessary information to the embed
-    statsEmbed.set_image(url=url)
-    statsEmbed.add_field(name="Minecraft ign", value=profile['ign'], inline=False)
-    statsEmbed.add_field(name="Bastion pb: ", value=retrieveStats.msConvert(profile['pb']), inline=False)
-    statsEmbed.add_field(name="Classic pb: ", value=retrieveStats.msConvert(profile['classic pb']), inline=False)
-    statsEmbed.add_field(name="No. Completions: ", value=profile['completions'], inline=False)
+    embed = discord.Embed(title=f"{profile['profileName']}'s Stats",
+                          color=discord.Color.blurple())
+    embed.set_image(url=url)
+    embed.add_field(name="IGN", value=profile['ign'])
+    embed.add_field(name="PB", value=retrieveStats.msConvert(profile['pb']))
+    embed.add_field(name="Classic PB",
+                    value=retrieveStats.msConvert(profile['classic pb']))
+    embed.add_field(name="Completions", value=profile['completions'])
 
-    return statsEmbed
+    return embed
+
 
 async def editProfile(profileName, variable, newVal: str):
     #open classicman profiles (read)
