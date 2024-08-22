@@ -5,40 +5,44 @@ A discord bot for classic mcsr
 
 **All commands of this bot will have a prefix of '!!' which can be changed in the bot.py file**
 
-# !!profile
+```
+!!profile stats ign (Gets stats of runner)
+!!classic (bot chats 'MAN')
+!!man (bot chats 'CLASSIC')
+```
 
-Usage: !!profile action profileName
+# Dependencies
 
-actions:
+You will need to install some python packages in order for this program to work
 
-**add: adds a new runner to classicMan**
+you can open your terminal or command prompt and type in these lines
 
-**remove: removes a runner from classicMan**
+```
+pip install discord.py
+```
+```
+pip install requests
+```
+```
+pip install asyncio
+```
+```
+pip install dotenv
+```
 
-**list: lists all runners in classicMan with their classic pbs**
-
-**stats: sends stats of a runner in classicMan**
-
-**edit: edits a profile's variable to a new Value**
-
-  This command uses a different structure:
-
-  !!profile edit variable newValue profileName
-
-  valid variables:
-    
-    profileName - your classicman profile name
-    
-    ign - your minecraft username/ign
-
-    bastionPB - your pb with a bastion
-
-    classicPB - your pb with classic/monument cus I'm lazy to seperate
-
-    completions - your number of minecraft completions
+This assumes you have both python and pip installed. If you do not, probably follow some tutorial online man idrk :/
 
 # How to use bot
 
-In the .env put your bot token as discord token and your channel id as channel id
+Download the file as a .zip and extract it in whatever directory you want
 
-fill in the tokens and channel id from your discord bot and channel respectively
+Make a .env file in the same directory as all the scripts and paste the following code snippet into the file
+```
+DISCORD_TOKEN = YOUR-TOKEN
+DISCORD_CHANNEL_ID = YOUR-CHANNEL-ID
+DISCORD_COMMANDS_CHANNEL_ID = YOUR-DISCORD-COMMANDS-CHANNEL-ID
+DISCORD_COMMANDS_CHANNEL_ID_TEST_REMOVE_AFTER_BETA = SAME-AS-DISCORD_COMMANDS_CHANNEL_ID
+DATA_CHANNEL_ID = YOUR-DATA-CHANNEL-ID
+```
+
+Replace all values with your values
